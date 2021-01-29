@@ -1,0 +1,98 @@
+model
+{
+    for(i in 1:N) {
+         for(t in 1:T) {
+           Y[i, t] ~ dpois( M[i,t] )
+           M[i,t] <- E[i,t] * theta[i,t]
+           theta[i, t] <- exp( beta0+ X1[i, t] * beta[C[i], t,1] +  X2[i, t] * beta[C[i], t,2] +   X3[i, t] *       beta[C[i], t,3] +  X4[i, t] * beta[C[i], t,4]  )
+
+            
+             } ## t end
+
+       C[i] ~ dcat( w[,i ] )
+
+            for(s in 1:S ) {
+               w[s, i]  <- w_star[s, i] / sum(w_star[,i ] )
+               w_star[s, i] ~ dlnorm(  lmu[s,i] , tau.wstar[s])
+               lmu[s,i] <- alpha+eta[s,i]
+                }
+
+         }  ## i end
+
+        for(s in 1:S) {
+             for(t in 1:T){
+                   for(p in 1:4) {
+          beta[s,t,p] <- delta[s, p] * lamda[s, p,t ]
+         
+}
+}
+}
+ for(s in 1:S) {
+  for(p in 1:4) {
+ delta[s, p] ~ dbin(phi[s,p],1)
+
+ logit( phi[s,p] ) <- mu[p] + xi[s,p]
+       
+        xi[s,p] ~ dnorm(0.0, tau.xi[s,p])
+     
+       tau.xi[s,p] <- 1/pow(sigma.xi[s,p], 2)
+        sigma.xi[s,p] ~ dunif(0.001, 1)
+
+}}
+
+
+# CAR prior distribution for random effects: eta[i, s]
+		
+    for( s in 1:S ) {
+    eta[s,1:N] ~ car.normal(adj[], weights[], num[], tau.eta[s])
+         
+           sigma.eta[s]~ dunif(0.01, 1)
+          tau.eta[s]<- 1/pow(sigma.eta[s],2)
+           # tau.eta[s] ~ dgamma(3,6)
+
+
+              sigma.wstar[s] ~ dunif(0.01, 1)
+              tau.wstar[s] <- 1/pow(sigma.wstar[s], 2)
+        
+          # tau.wstar[s] ~ dgamma(3,6)
+    }
+
+  
+  for(k in 1:sumNumNeigh) {
+		       weights[k] <- 1    } 
+
+	
+
+alpha ~ dunif(-6,6)
+beta0 ~ dnorm(0.0,  1.0E2 )
+
+
+  ###
+  for(s in 1:S) {    
+       for(p in 1:4) {
+        
+        lamda[s, p, 1:T] ~ car.normal(adj.lamd[], weights.lamd[], num.lamd[], tau.lamd)
+        }
+}
+
+  for(p in 1:4) {
+  mu[p] ~ dnorm(0.0, 1.0E3) 
+}
+
+###
+        for(t in 1:1) {
+        weights.lamd[t] <- 1;      adj.lamd[t] <- t+1;      num.lamd[t] <- 1
+        }
+        for(t in 2:(T-1)) {
+        weights.lamd[2+(t-2)*2] <- 1;      adj.lamd[2+(t-2)*2] <- t-1
+        weights.lamd[3+(t-2)*2] <- 1;      adj.lamd[3+(t-2)*2] <- t+1;     num.lamd[t] <- 2
+        }
+        for(t in T:T) {
+        weights.lamd[(T-2)*2 + 2] <- 1;     adj.lamd[(T-2)*2 + 2] <- t-1;     num.lamd[t] <- 1
+        }
+      
+        tau.lamd <- 1/pow(sigma.lamd,2)
+       sigma.lamd ~ dunif(0.01, 2)
+
+
+} ##  end of model
