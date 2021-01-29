@@ -1,2 +1,3 @@
-# Bayesian-space-time-model
-codes for a Bayesian spatio-temporal model and data for the low birth weight incidence in Georgia, USA
+# Bayesian spatio-temporally dependent model 
+
+This package implements a flexible Bayesian hierarchical regression model to simultaneously identify spatial clusters where covariates have heterogeneous temporal effects depending on groups, select covariates with significant effects for each spatial group by introducing binary entry parameters and estimate spatio-temporally varying disease risks. The estimation is conducted using MCMC algorithms via statistical software R and WinBUGS. The "data" file is used in real data analysis, including the low birth weight(LBW) outcomes and six considered covariates in 159 counties of Georgia, USA, for the years 2007-2018.
